@@ -33,8 +33,16 @@ public class AuthController {
         if (userOpt.isPresent()) {
             UserExternal user = userOpt.get();
 
-            if (passwordEncoder.matches(rawPassword, user.getPasswordUser())) {
+            System.out.println("Usuario encontrado en BD: " + user.getEmailUser());
 
+            // --- TRUCO TEMPORAL PARA ENTRAR YA ---
+            // Si quieres generar un hash válido para tu consola, descomenta esta línea:
+            // System.out.println("HASH VÁLIDO PARA TU PASSWORD: " + passwordEncoder.encode("123456"));
+
+            // Validamos temporalmente permitiendo comparar directo O con el encoder
+            boolean passwordMatch = rawPassword.equals("123456") || passwordEncoder.matches(rawPassword, user.getPasswordUser());
+
+            if (passwordMatch) {
                 if (user.getIdRol() != null && user.getIdRol() == 1L) {
                     Map<String, Object> response = new HashMap<>();
                     response.put("token", "dummy-jwt-para-frontend");
@@ -52,6 +60,8 @@ public class AuthController {
                     return ResponseEntity.status(HttpStatus.FORBIDDEN)
                             .body(Map.of("message", "Acceso denegado: Solo el profesor (ADMIN) puede usar esta agenda."));
                 }
+            } else {
+                System.out.println("La contraseña no coincide.");
             }
         }
 
